@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:praisethesun/src/app.dart';
 import 'package:provider/provider.dart';
-import './src/map.dart';
 import 'src/model.dart';
+// import 'src/widgets/sun_map.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
         textTheme: TextTheme(bodySmall: TextStyle(fontSize: 12)),
       ),
       initialRoute: "/home",
-      routes: {"/home": (context) => const SunMap()},
+      routes: {"/home": (context) => const SunApp()},
     );
   }
 }
