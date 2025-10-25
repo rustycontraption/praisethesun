@@ -1,4 +1,4 @@
-package com.example.praisethesun
+package com.annejulian.praisethesun
 
 import io.flutter.embedding.android.FlutterActivity
 

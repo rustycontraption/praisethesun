@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:praisethesun/src/model.dart';
-import 'package:provider/provider.dart';
+import 'package:praisethesun/src/model/model.dart';
+import 'package:praisethesun/src/widgets/circle_layer.dart';
+import 'package:praisethesun/src/widgets/marker_layer.dart';
 // import 'package:latlong2/latlong.dart';
 // import 'package:praisethesun/src/model.dart';
 // import 'package:provider/provider.dart';
 
 class SunMap extends StatefulWidget {
-  // final List<Marker> markers;
+  final SunLocationModel sunModel;
   final TapCallback onTapHandler;
-  // final LatLng initialCenterPoint;
+  final LatLng initialCenterPoint;
+  final SunMarkerLayer markerLayer;
+  final SearchCircleLayer circleLayer;
 
   const SunMap({
     super.key,
-    // required this.markers,
+    required this.sunModel,
     required this.onTapHandler,
-    // required this.initialCenterPoint,
+    required this.initialCenterPoint,
+    required this.markerLayer,
+    required this.circleLayer,
   });
 
   @override
@@ -24,18 +29,37 @@ class SunMap extends StatefulWidget {
 }
 
 class _SunMapState extends State<SunMap> {
-  final MapController _mapController = MapController();
+  late final MapController _mapController;
+
+  @override
+  void initState() {
+    super.initState();
+    _mapController = MapController();
+  }
+
+  // class SunMap extends StatelessWidget {
+  //   SunMap({
+  //     super.key,
+  //     required this.sunModel,
+  //     required this.onTapHandler,
+  //     required this.initialCenterPoint,
+  //     required this.markerLayer,
+  //   });
+
+  //   final SunLocationModel sunModel;
+  //   final TapCallback onTapHandler;
+  //   final LatLng initialCenterPoint;
+  //   final SunMarkerLayer markerLayer;
 
   @override
   Widget build(BuildContext context) {
-    // final sunModel = Provider.of<SunLocationModel>(context);
-    print("🐞 FLUTTER MAP REBUILT");
     return Scaffold(
       body: FlutterMap(
         mapController: _mapController,
         options: MapOptions(
-          // initialCenter: widget.initialCenterPoint,
-          initialCenter: LatLng(47.60621, -122.33207),
+          keepAlive: true,
+          // onMapReady: () => sunModel.mapController = _mapController,
+          initialCenter: widget.initialCenterPoint,
           initialZoom: 10,
           maxZoom: 12,
           onTap: widget.onTapHandler,
@@ -61,12 +85,8 @@ class _SunMapState extends State<SunMap> {
               ),
             ),
           ),
-          Consumer<SunLocationModel>(
-            builder: (context, sunModel, child) {
-              print("🔄 MARKER LAYER REBUILT");
-              return MarkerLayer(markers: sunModel.markers);
-            },
-          ),
+          widget.circleLayer,
+          widget.markerLayer,
         ],
       ),
     );
