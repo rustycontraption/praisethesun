@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:logging/logging.dart';
 import 'package:praisethesun/src/model/model.dart';
+import 'package:praisethesun/src/services/logging_service.dart';
 import 'package:praisethesun/src/widgets/circle_layer.dart';
 import 'package:praisethesun/src/widgets/marker_layer.dart';
-// import 'package:latlong2/latlong.dart';
-// import 'package:praisethesun/src/model.dart';
-// import 'package:provider/provider.dart';
+import 'package:praisethesun/src/widgets/snackbar_message.dart';
 
 class SunMap extends StatefulWidget {
   final SunLocationModel sunModel;
@@ -30,26 +30,49 @@ class SunMap extends StatefulWidget {
 
 class _SunMapState extends State<SunMap> {
   late final MapController _mapController;
+  late final Logger _logger;
 
   @override
   void initState() {
     super.initState();
     _mapController = MapController();
+    widget.sunModel.addListener(_onSearchRadiusChanged);
+    _logger = LoggingService().getLogger('SunMap');
   }
 
-  // class SunMap extends StatelessWidget {
-  //   SunMap({
-  //     super.key,
-  //     required this.sunModel,
-  //     required this.onTapHandler,
-  //     required this.initialCenterPoint,
-  //     required this.markerLayer,
-  //   });
+  void _onSearchRadiusChanged() async {
+    final Distance distance = const Distance();
 
-  //   final SunLocationModel sunModel;
-  //   final TapCallback onTapHandler;
-  //   final LatLng initialCenterPoint;
-  //   final SunMarkerLayer markerLayer;
+    int searchRadius;
+    searchRadius = widget.sunModel.currentSearchRadius;
+    LatLng neLatLng = distance.offset(
+      widget.sunModel.startPoint,
+      searchRadius * 1000,
+      45,
+    );
+    LatLng swLatLng = distance.offset(
+      widget.sunModel.startPoint,
+      searchRadius * 1000,
+      225,
+    );
+
+    try {
+      final newBounds = LatLngBounds.fromPoints([neLatLng, swLatLng]);
+
+      _mapController.fitCamera(
+        CameraFit.bounds(
+          bounds: newBounds,
+          padding: const EdgeInsets.all(100.0),
+        ),
+      );
+      _mapController.rotate(0);
+    } catch (e) {
+      _logger.severe('Error updating camera location');
+      if (mounted) {
+        showErrorSnackBar(context, 'Error updating camera location');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +81,6 @@ class _SunMapState extends State<SunMap> {
         mapController: _mapController,
         options: MapOptions(
           keepAlive: true,
-          // onMapReady: () => sunModel.mapController = _mapController,
           initialCenter: widget.initialCenterPoint,
           initialZoom: 10,
           maxZoom: 12,

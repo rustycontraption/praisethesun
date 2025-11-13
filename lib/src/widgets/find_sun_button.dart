@@ -29,31 +29,6 @@ class _FindSunButtonState extends State<FindSunButton> {
     _logger = LoggingService().getLogger('FindSunButton');
   }
 
-  _updateCameraLocation() {
-    final sunModel = context.read<SunLocationModel>();
-
-    try {
-      final mapController = MapController.of(context);
-      if (sunModel.sunLocations.isEmpty) return;
-
-      final newBounds = LatLngBounds.fromPoints([
-        sunModel.startPoint,
-        ...sunModel.sunLocations,
-      ]);
-
-      mapController.fitCamera(
-        CameraFit.bounds(
-          bounds: newBounds,
-          padding: const EdgeInsets.all(_mapPadding),
-        ),
-      );
-      mapController.rotate(0);
-    } catch (e) {
-      _logger.severe('Error updating camera location');
-      showErrorSnackBar(context, 'Error updating camera location');
-    }
-  }
-
   Future<void> _handleSun() async {
     final sunModel = context.read<SunLocationModel>();
 
@@ -74,9 +49,6 @@ class _FindSunButtonState extends State<FindSunButton> {
           _isLoading = false;
         });
       }
-    }
-    if (mounted) {
-      _updateCameraLocation();
     }
   }
 
