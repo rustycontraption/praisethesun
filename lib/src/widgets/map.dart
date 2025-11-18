@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:logging/logging.dart';
 import 'package:praisethesun/src/model/model.dart';
@@ -28,14 +29,14 @@ class SunMap extends StatefulWidget {
   State<SunMap> createState() => _SunMapState();
 }
 
-class _SunMapState extends State<SunMap> {
-  late final MapController _mapController;
+class _SunMapState extends State<SunMap> with TickerProviderStateMixin {
+  late final AnimatedMapController _animatedMapController;
   late final Logger _logger;
 
   @override
   void initState() {
     super.initState();
-    _mapController = MapController();
+    _animatedMapController = AnimatedMapController(vsync: this);
     widget.sunModel.addListener(_onSearchRadiusChanged);
     _logger = LoggingService().getLogger('SunMap');
   }
@@ -55,17 +56,25 @@ class _SunMapState extends State<SunMap> {
       searchRadius * 1000,
       225,
     );
+    final double currentZoom = _animatedMapController.mapController.camera.zoom;
+    final newBounds = LatLngBounds.fromPoints([neLatLng, swLatLng]);
+    final CameraFit cameraFit = CameraFit.bounds(
+      bounds: newBounds,
+      padding: const EdgeInsets.all(100.0),
+    );
+    final double newZoom = cameraFit
+        .fit(_animatedMapController.mapController.camera)
+        .zoom;
+
+    if (newZoom > currentZoom) {
+      return;
+    }
 
     try {
-      final newBounds = LatLngBounds.fromPoints([neLatLng, swLatLng]);
-
-      _mapController.fitCamera(
-        CameraFit.bounds(
-          bounds: newBounds,
-          padding: const EdgeInsets.all(100.0),
-        ),
+      _animatedMapController.animatedFitCamera(
+        cameraFit: cameraFit,
+        rotation: 0,
       );
-      _mapController.rotate(0);
     } catch (e) {
       _logger.severe('Error updating camera location');
       if (mounted) {
@@ -78,7 +87,7 @@ class _SunMapState extends State<SunMap> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FlutterMap(
-        mapController: _mapController,
+        mapController: _animatedMapController.mapController,
         options: MapOptions(
           keepAlive: true,
           initialCenter: widget.initialCenterPoint,

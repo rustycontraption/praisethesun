@@ -3,21 +3,19 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:praisethesun/src/model/model.dart';
 import 'package:praisethesun/src/widgets/find_sun_button.dart';
+import 'package:praisethesun/src/widgets/show_sun_marker_data.dart';
 import 'package:provider/provider.dart';
 
 class SunMarkerLayer extends StatelessWidget {
-  SunMarkerLayer({super.key, required this.sunModel});
+  SunMarkerLayer({super.key});
 
   final List<Marker> _markers = [];
-  final SunLocationModel sunModel;
-
-  Marker get _startMarker => startLocationMarker(sunModel.startPoint);
 
   Marker startLocationMarker(LatLng newPoint) {
     return Marker(
       point: newPoint,
-      width: 80,
-      height: 80,
+      width: 100,
+      height: 100,
       child: FindSunButton(),
     );
   }
@@ -25,21 +23,15 @@ class SunMarkerLayer extends StatelessWidget {
   Marker sunLocationMarker(LatLng newPoint) {
     return Marker(
       point: newPoint,
-      width: 64,
-      height: 64,
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(Icons.wb_sunny, color: Colors.orange, size: 48),
-      ),
+      width: 100,
+      height: 100,
+      child: ShowSunMarkerData(buttonLocation: newPoint),
     );
   }
 
-  void _updateMarkers() {
+  void _updateMarkers(SunLocationModel sunModel) {
     _markers.clear();
-    _markers.add(_startMarker);
+    _markers.add(startLocationMarker(sunModel.startPoint));
 
     if (sunModel.sunLocations.isNotEmpty) {
       _markers.addAll(
@@ -50,12 +42,9 @@ class SunMarkerLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final SunLocationModel sunModel = Provider.of<SunLocationModel>(context);
-
-    return ListenableBuilder(
-      listenable: sunModel,
-      builder: (context, child) {
-        _updateMarkers();
+    return Consumer<SunLocationModel>(
+      builder: (context, sunModel, child) {
+        _updateMarkers(sunModel);
         return MarkerLayer(markers: _markers);
       },
     );

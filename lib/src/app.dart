@@ -6,14 +6,13 @@ import 'package:praisethesun/src/widgets/map.dart';
 import 'package:praisethesun/src/widgets/marker_layer.dart';
 import 'package:provider/provider.dart';
 
-// class SunApp extends StatefulWidget {
-//   const SunApp({super.key});
+void _handleMap(SunLocationModel sunLocationModel, LatLng point) {
+  if (sunLocationModel.isSearching) {
+    return;
+  }
+  sunLocationModel.setStartPoint(point);
+}
 
-//   @override
-//   State<SunApp> createState() => _SunAppState();
-// }
-
-// class _SunAppState extends State<SunApp> {
 class SunApp extends StatelessWidget {
   const SunApp({super.key});
   @override
@@ -27,11 +26,11 @@ class SunApp extends StatelessWidget {
       body: SunMap(
         sunModel: sunLocationModel,
         onTapHandler: (tapPosition, point) => {
-          sunLocationModel.setStartPoint(point),
+          _handleMap(sunLocationModel, point),
         },
         initialCenterPoint: LatLng(47.60621, -122.33207),
-        markerLayer: SunMarkerLayer(sunModel: sunLocationModel),
-        circleLayer: SearchCircleLayer(sunModel: sunLocationModel),
+        markerLayer: SunMarkerLayer(),
+        circleLayer: SearchCircleLayer(),
       ),
     );
   }

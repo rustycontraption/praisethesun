@@ -4,26 +4,24 @@ import 'package:praisethesun/src/model/model.dart';
 import 'package:provider/provider.dart';
 
 class SearchCircleLayer extends StatelessWidget {
-  const SearchCircleLayer({super.key, required this.sunModel});
+  const SearchCircleLayer({super.key});
 
-  final SunLocationModel sunModel;
+  CircleMarker searchCircle(SunLocationModel sunModel) {
+    return CircleMarker(
+      point: sunModel.startPoint,
+      radius: sunModel.isSearching ? sunModel.currentSearchRadius * 1000 : 0,
+      useRadiusInMeter: true,
+      color: Colors.orange.withAlpha(50),
+      borderColor: Colors.orange,
+      borderStrokeWidth: 2,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<SunLocationModel>(
       builder: (context, sunModel, child) {
-        return CircleLayer(
-          circles: [
-            CircleMarker(
-              point: sunModel.startPoint,
-              radius: sunModel.currentSearchRadius * 1000,
-              useRadiusInMeter: true,
-              color: Colors.orange.withAlpha(50),
-              borderColor: Colors.orange,
-              borderStrokeWidth: 2,
-            ),
-          ],
-        );
+        return CircleLayer(circles: [searchCircle(sunModel)]);
       },
     );
   }

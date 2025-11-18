@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:logging/logging.dart';
@@ -13,6 +12,8 @@ class SunLocationModel extends ChangeNotifier {
   LatLng _startPoint = LatLng(47.60621, -122.33207);
   bool _isSearching = false;
   int _currentSearchRadius = 0;
+  CancelToken _cancelToken = CancelToken();
+  final dio = Dio();
 
   SunLocationModel({required LoggingService loggingService})
     : _logger = loggingService.getLogger('SunLocationModel');
@@ -27,48 +28,52 @@ class SunLocationModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getSunLocationFromServer([int radiusKilometers = 0]) async {
-    http.Response response;
-    List<LatLng> sunCoords = [];
-
-    _isSearching = true;
-    _currentSearchRadius = radiusKilometers;
+  void cancelSearch() {
+    _isSearching = false;
+    _currentSearchRadius = 0;
     _sunLocations.clear();
+    _cancelToken.cancel();
+    notifyListeners();
+  }
+
+  Future<void> getSunLocationFromServer([int radiusKilometers = 0]) async {
+    if (radiusKilometers >= 1000) {
+      cancelSearch();
+      return Future.error('No sun locations found within 5000 km radius.');
+    }
+
+    Response response;
+    List<LatLng> sunCoords = [];
+    _currentSearchRadius = radiusKilometers;
     notifyListeners();
 
-    final uri = Uri.parse(
-      '$sunAPIUrl?start_point_lat=${_startPoint.latitude}&start_point_lng=${_startPoint.longitude}&radiusKilometers=$radiusKilometers',
-    );
+    final uri =
+        '$sunAPIUrl?start_point_lat=${_startPoint.latitude}&start_point_lng=${_startPoint.longitude}&radiusKilometers=$radiusKilometers';
 
     try {
-      response = await http
-          .get(uri)
-          .timeout(
-            const Duration(seconds: 30),
-            onTimeout: () {
-              throw TimeoutException('Connection to sun data API timed out');
-            },
-          );
-      _logger.info('Calling sun API for radius $radiusKilometers kilometers');
-    } on TimeoutException {
-      _logger.severe('Timeout when fetching from sun data API');
-      return Future.error('Timeout when fetching sun data');
-    } on http.ClientException catch (error) {
-      _logger.severe(
-        'HTTP Client Exception when fetching from sun data API: $error',
-      );
-      return Future.error('HTTP client exception when fetching sun data');
+      response = await dio.get(uri, cancelToken: _cancelToken);
+    } on DioException catch (error) {
+      if (DioExceptionType.connectionTimeout == error.type ||
+          DioExceptionType.receiveTimeout == error.type) {
+        cancelSearch();
+        return Future.error('Timeout when fetching sun data, try again!');
+      } else if (DioExceptionType.cancel == error.type) {
+        cancelSearch();
+        return;
+      } else {
+        rethrow;
+      }
     } catch (error) {
-      _logger.severe('Error when fetching from sun data API: $error');
-      return Future.error('Error when fetching sun data');
+      cancelSearch();
+      return Future.error('Error when fetching sun data, try again.');
     }
 
     if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-      sunCoords = (jsonResponse['data'] as List).map((item) {
+      sunCoords = (response.data['data']['sun_location'] as List).map((item) {
         return LatLng(item['lat'], item['lng']);
       }).toList();
     } else {
+      cancelSearch();
       _logger.warning(
         'Sun data API returned HTTP code: ${response.statusCode}',
       );
@@ -78,14 +83,24 @@ class SunLocationModel extends ChangeNotifier {
     }
 
     if (sunCoords.isNotEmpty) {
-      _sunLocations.clear();
       _sunLocations.addAll(sunCoords);
-      _isSearching = false;
-      _currentSearchRadius = 0;
       notifyListeners();
       return;
     } else {
-      return getSunLocationFromServer(radiusKilometers += 100);
+      return getSunLocationFromServer(radiusKilometers + 100);
     }
+  }
+
+  Future<void> returnSunLocations() async {
+    _cancelToken.cancel();
+    _sunLocations.clear();
+    _isSearching = true;
+    _cancelToken = CancelToken();
+    notifyListeners();
+
+    await getSunLocationFromServer();
+
+    _isSearching = false;
+    notifyListeners();
   }
 }
