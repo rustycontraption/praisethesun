@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:praisethesun/src/model/model.dart';
+import 'package:praisethesun/src/services/system_message_handler.dart';
 import 'package:praisethesun/src/widgets/circle_layer.dart';
 import 'package:praisethesun/src/widgets/find_sun_button.dart';
 import 'package:praisethesun/src/widgets/marker_layer.dart';
@@ -26,15 +27,17 @@ void main() {
   Future<void> pumpMapWidget(WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: ChangeNotifierProvider<SunLocationModel>.value(
-            value: model,
-            child: FlutterMap(
-              options: MapOptions(
-                initialCenter: mockData['mockInitialCenter'],
-                initialZoom: 10.0,
+        home: ChangeNotifierProvider<SunLocationModel>.value(
+          value: model,
+          child: MessageHandler(
+            child: Scaffold(
+              body: FlutterMap(
+                options: MapOptions(
+                  initialCenter: mockData['mockInitialCenter'],
+                  initialZoom: 10.0,
+                ),
+                children: [SearchCircleLayer(), SunMarkerLayer()],
               ),
-              children: [SearchCircleLayer(), SunMarkerLayer()],
             ),
           ),
         ),

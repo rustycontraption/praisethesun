@@ -5,7 +5,7 @@ void showErrorSnackBar(BuildContext context, String error) {
     SnackBar(
       content: Text(error.toString()),
       backgroundColor: Colors.red,
-      duration: const Duration(seconds: 5),
+      duration: const Duration(seconds: 10),
     ),
   );
 }
@@ -14,7 +14,7 @@ void showInfoSnackBar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(message),
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      backgroundColor: Colors.white,
       duration: const Duration(seconds: 10),
     ),
   );

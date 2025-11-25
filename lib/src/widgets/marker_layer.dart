@@ -7,9 +7,7 @@ import 'package:praisethesun/src/widgets/show_sun_marker_data.dart';
 import 'package:provider/provider.dart';
 
 class SunMarkerLayer extends StatelessWidget {
-  SunMarkerLayer({super.key});
-
-  final List<Marker> _markers = [];
+  const SunMarkerLayer({super.key});
 
   Marker startLocationMarker(LatLng newPoint) {
     return Marker(
@@ -29,23 +27,24 @@ class SunMarkerLayer extends StatelessWidget {
     );
   }
 
-  void _updateMarkers(SunLocationModel sunModel) {
-    _markers.clear();
-    _markers.add(startLocationMarker(sunModel.startPoint));
+  List<Marker> buildMarkers(SunLocationModel sunModel) {
+    final markers = <Marker>[];
+    markers.add(startLocationMarker(sunModel.startPoint));
 
     if (sunModel.sunLocations.isNotEmpty) {
-      _markers.addAll(
+      markers.addAll(
         sunModel.sunLocations.map((latlng) => sunLocationMarker(latlng)),
       );
     }
+
+    return markers;
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<SunLocationModel>(
       builder: (context, sunModel, child) {
-        _updateMarkers(sunModel);
-        return MarkerLayer(markers: _markers);
+        return MarkerLayer(markers: buildMarkers(sunModel));
       },
     );
   }

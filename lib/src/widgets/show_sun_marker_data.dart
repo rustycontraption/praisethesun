@@ -18,9 +18,9 @@ class ShowSunMarkerData extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Latitude: ${buttonLocation.latitude.toStringAsFixed(6)}'),
+              Text('Latitude: ${buttonLocation.latitude.toString()}'),
               const SizedBox(height: 8),
-              Text('Longitude: ${buttonLocation.longitude.toStringAsFixed(6)}'),
+              Text('Longitude: ${buttonLocation.longitude.toString()}'),
             ],
           ),
           actions: [

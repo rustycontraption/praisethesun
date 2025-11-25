@@ -1,26 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:praisethesun/src/app.dart';
+import 'package:praisethesun/src/services/system_message_handler.dart';
 import 'package:provider/provider.dart';
 import 'src/model/model.dart';
-import 'src/services/logging_service.dart';
+import 'src/services/sun_logging.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  LoggingService.configureLogging();
+  SunLogging.configureLogging();
 
   runApp(
-    MultiProvider(
-      providers: [
-        Provider<LoggingService>(create: (context) => LoggingService()),
-        ChangeNotifierProxyProvider<LoggingService, SunLocationModel>(
-          create: (context) => SunLocationModel(
-            loggingService: Provider.of<LoggingService>(context, listen: false),
-          ),
-          update: (context, loggingService, previous) =>
-              previous ?? SunLocationModel(loggingService: loggingService),
-        ),
-      ],
+    ChangeNotifierProvider(
+      create: (context) => SunLocationModel(),
       child: const MyApp(),
     ),
   );
@@ -38,7 +29,7 @@ class MyApp extends StatelessWidget {
         textTheme: TextTheme(bodySmall: TextStyle(fontSize: 12)),
       ),
       initialRoute: "/home",
-      routes: {"/home": (context) => const SunApp()},
+      routes: {"/home": (context) => const MessageHandler(child: SunApp())},
     );
   }
 }

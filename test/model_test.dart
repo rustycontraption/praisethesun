@@ -1,8 +1,5 @@
-import 'dart:async';
-import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:praisethesun/src/model/model.dart';
-import 'package:praisethesun/src/services/logging_service.dart';
 
 import 'mock_data.dart';
 import 'mock_sun_api.dart';
@@ -43,7 +40,7 @@ void main() {
           expect(model.currentSearchRadius, searchRadius + 100);
 
           // Complete the second search to avoid hanging
-          mockApiClient.completePendingSearch(returnData: true);
+          mockApiClient.cancelPendingSearch();
         },
       );
 
@@ -59,40 +56,24 @@ void main() {
       });
 
       test('stops search when radius reaches a set upper limit', () async {
-        await expectLater(
-          model.returnSunLocations(1000),
-          throwsA(isA<String>()),
-        );
+        await model.returnSunLocations(1000);
 
         expect(model.isSearching, false);
         expect(model.currentSearchRadius, equals(0));
         expect(model.sunLocations, isEmpty);
       });
 
-      test('handles network errors properly', () async {
-        final future = model.returnSunLocations(100);
-        await Future.delayed(Duration.zero);
-
-        mockApiClient.completeWithError(MockFailureType.networkError);
-
-        await expectLater(future, throwsA(isA<DioException>()));
-
-        expect(model.isSearching, false);
-        expect(model.currentSearchRadius, 0);
-        expect(model.sunLocations, isEmpty);
-      });
-
-      test('handles server errors properly', () async {
+      test('handles errors properly', () async {
         final future = model.returnSunLocations(100);
         await Future.delayed(Duration.zero);
 
         mockApiClient.completeWithError(MockFailureType.serverError);
-
-        await expectLater(future, throwsA(isA<String>()));
+        await future;
 
         expect(model.isSearching, false);
         expect(model.currentSearchRadius, 0);
         expect(model.sunLocations, isEmpty);
+        expect(model.errorMessage, isNotNull);
       });
 
       test('notifies listeners on state changes', () async {

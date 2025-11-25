@@ -34,9 +34,9 @@ class _FindSunButtonState extends State<FindSunButton> {
     try {
       await sunModel.returnSunLocations();
     } catch (error) {
-      if (mounted) {
-        showErrorSnackBar(context, error.toString());
-      }
+      // if (mounted) {
+      //   showErrorSnackBar(context, error.toString());
+      // }
       return;
     } finally {
       if (mounted) {
@@ -49,7 +49,7 @@ class _FindSunButtonState extends State<FindSunButton> {
 
   void _cancelSearch() {
     final sunModel = context.read<SunLocationModel>();
-    sunModel.cancelSearch();
+    sunModel.resetSearch();
   }
 
   @override

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:praisethesun/src/model/sun_api_client.dart';
-
 import 'mock_data.dart';
 
 enum MockFailureType { none, networkError, serverError, timeout }
@@ -64,11 +63,13 @@ class MockSunApiClient extends SunApiClient {
     if (!cancelToken.isCancelled) {
       cancelToken.whenCancel.then((_) {
         if (_searchCompleter != null && !_searchCompleter!.isCompleted) {
-          _searchCompleter!.isCompleted;
-          return DioException(
-            requestOptions: RequestOptions(path: sunAPIUrl),
-            type: DioExceptionType.cancel,
+          _searchCompleter!.completeError(
+            DioException(
+              requestOptions: RequestOptions(path: sunAPIUrl),
+              type: DioExceptionType.cancel,
+            ),
           );
+          _searchCompleter = null;
         }
       });
     }

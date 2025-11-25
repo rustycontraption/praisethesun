@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:logging/logging.dart';
 import 'package:praisethesun/src/model/model.dart';
-import 'package:praisethesun/src/services/logging_service.dart';
+import 'package:praisethesun/src/services/sun_logging.dart';
 import 'package:praisethesun/src/widgets/circle_layer.dart';
 import 'package:praisethesun/src/widgets/marker_layer.dart';
 import 'package:praisethesun/src/widgets/snackbar_message.dart';
@@ -38,7 +37,7 @@ class _SunMapState extends State<SunMap> with TickerProviderStateMixin {
     super.initState();
     _animatedMapController = AnimatedMapController(vsync: this);
     widget.sunModel.addListener(_onSearchRadiusChanged);
-    _logger = LoggingService().getLogger('SunMap');
+    _logger = SunLogging.getLogger('SunMap');
   }
 
   void _onSearchRadiusChanged() async {
