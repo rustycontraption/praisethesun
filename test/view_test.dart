@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:praisethesun/src/model/model.dart';
-import 'package:praisethesun/src/services/logging_service.dart';
 import 'package:praisethesun/src/widgets/circle_layer.dart';
 import 'package:praisethesun/src/widgets/find_sun_button.dart';
 import 'package:praisethesun/src/widgets/marker_layer.dart';
@@ -17,13 +16,9 @@ void main() {
   late MockSunApiClient mockApiClient;
 
   setUp(() {
-    LoggingService loggingService = LoggingService();
     mockApiClient = MockSunApiClient();
 
-    model = SunLocationModel(
-      loggingService: loggingService,
-      apiClient: mockApiClient,
-    );
+    model = SunLocationModel(apiClient: mockApiClient);
 
     model.setStartPoint(mockData['mockInitialCenter']);
   });

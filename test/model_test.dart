@@ -10,16 +10,11 @@ import 'mock_sun_api.dart';
 void main() {
   group('SunLocationModel', () {
     late SunLocationModel model;
-    late LoggingService loggingService;
     late MockSunApiClient mockApiClient;
 
     setUp(() {
-      loggingService = LoggingService();
       mockApiClient = MockSunApiClient();
-      model = SunLocationModel(
-        loggingService: loggingService,
-        apiClient: mockApiClient,
-      );
+      model = SunLocationModel(apiClient: mockApiClient);
     });
 
     test('initial state is correct', () {
