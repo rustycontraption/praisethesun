@@ -1,6 +1,7 @@
 import math
 import requests
 import logging
+import time
 from typing import TypedDict
 from fastapi import HTTPException
 
@@ -29,8 +30,7 @@ def calc_coords(center_lat: float, center_lng: float, radius: float, **kwargs) -
     radius_rad = radius / earth_radius
     coord_quantity = math.floor(math.pi / math.asin(coord_separation / (2 * radius)))
 
-    coords = {'lat': [], 'lng': []}
-
+    coords = []
     #testing 
     for i in range(coord_quantity):
         # Bearing angle for this point (0 to 2π)
@@ -55,23 +55,19 @@ def calc_coords(center_lat: float, center_lng: float, radius: float, **kwargs) -
         # Normalize longitude to 180/-180
         coord_lng_deg = ((coord_lng_deg + 540) % 360) - 180
 
-        coords['lat'].append(round(coord_lat_deg, 6))
-        coords['lng'].append(round(coord_lng_deg, 6))
+        coords.append({
+            'lat': round(coord_lat_deg, 6),
+            'lng': round(coord_lng_deg, 6),
+        })
 
     return coords
-
+    
 def find_sun(input_lat: float, input_lng: float, radiusKilometers: int) -> dict:
-    """
-    Check a list of coordinates for sunny weather one at a time,
-    store any coordinates that are sunny, 
-    and return that stored list of coordinates.
-    """
-
-    logger = logging.getLogger("find_sun") 
-    sun_locations = []
+    logger = logging.getLogger("check_sun") 
+    sun_location = []
 
     if radiusKilometers == 0:
-        coords = {'lat': [input_lat], 'lng': [input_lng]}
+        coords = [{'lat': input_lat, 'lng': input_lng}]
     else:
         coords = calc_coords(center_lat=input_lat, center_lng=input_lng, radius=radiusKilometers)
 
@@ -80,42 +76,12 @@ def find_sun(input_lat: float, input_lng: float, radiusKilometers: int) -> dict:
             response = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={coord['lat']}&longitude={coord['lng']}&current=weather_code&timezone=auto&models=ecmwf_ifs")
             if response.status_code == 200:
                 if response.json()["current"]["weather_code"] == 0:
-                    sun_locations.append({"lat": coord['lat'], "lng": coord['lng']})
+                    sun_location.append({"lat": coord['lat'], "lng": coord['lng']})
+                    print(coord)
             else:
                 response.raise_for_status()
         except requests.RequestException:
             logger.critical("Internal error when trying to contact weather API.")
 
-def find_sun_multisearch(input_lat: float, input_lng: float, radiusKilometers: int) -> dict:
-    """
-    Check a list of coordinates for sunny weather,
-    store any coordinates that are sunny, 
-    and return that stored list of coordinates.
-    """
-
-    logger = logging.getLogger("find_sun_multisearch") 
-    sun_locations = []
-
-    if radiusKilometers == 0:
-        coords = {'lat': [input_lat], 'lng': [input_lng]}
-    else:
-        coords = calc_coords(center_lat=input_lat, center_lng=input_lng, radius=radiusKilometers)
-
-    latList = ",".join([str(lat) for lat in coords['lat']])
-    lngList = ",".join([str(lng) for lng in coords['lng']])
-
-    try:
-        response = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={latList}&longitude={lngList}&current=weather_code&timezone=auto&models=ecmwf_ifs")
-        if response.status_code == 200:
-            result = response.json() if isinstance(response.json(), list) else [response.json()]
-            for result in result:
-                if result["current"]["weather_code"] == 0:
-                    sun_locations.append({"lat": result['latitude'], "lng": result['longitude']})
-                    print(result)
-        else:
-            response.raise_for_status()
-    except requests.RequestException:
-        logger.critical("Internal error when trying to contact weather API.")
-
-    return {"start_point": {'lat': input_lat, 'lng': input_lng}, "sun_location": sun_locations}
+    return {"start_point": {'lat': input_lat, 'lng': input_lng}, "sun_location": sun_location}
     
