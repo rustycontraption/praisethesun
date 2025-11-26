@@ -6,7 +6,7 @@ import 'package:praisethesun/src/services/system_message_handler.dart';
 import 'package:praisethesun/src/widgets/circle_layer.dart';
 import 'package:praisethesun/src/widgets/find_sun_button.dart';
 import 'package:praisethesun/src/widgets/marker_layer.dart';
-import 'package:praisethesun/src/widgets/show_sun_marker_data.dart';
+import 'package:praisethesun/src/widgets/sun_marker.dart';
 import 'package:provider/provider.dart';
 
 import 'mock_data.dart';
@@ -133,7 +133,7 @@ void main() {
 
       final allMarkers = markerLayerWidget.markers;
       final sunMarkers = allMarkers
-          .where((marker) => marker.child is ShowSunMarkerData)
+          .where((marker) => marker.child is SunMarkerButton)
           .toList();
 
       final int expectedSunMarkerCount = mockData['mockSunLocations'].length;

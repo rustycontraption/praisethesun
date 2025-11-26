@@ -3,7 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:praisethesun/src/model/model.dart';
 import 'package:praisethesun/src/widgets/find_sun_button.dart';
-import 'package:praisethesun/src/widgets/show_sun_marker_data.dart';
+import 'package:praisethesun/src/widgets/sun_marker.dart';
 import 'package:provider/provider.dart';
 
 class SunMarkerLayer extends StatelessWidget {
@@ -12,8 +12,8 @@ class SunMarkerLayer extends StatelessWidget {
   Marker startLocationMarker(LatLng newPoint) {
     return Marker(
       point: newPoint,
-      width: 100,
-      height: 100,
+      width: 80,
+      height: 80,
       child: FindSunButton(),
     );
   }
@@ -21,9 +21,9 @@ class SunMarkerLayer extends StatelessWidget {
   Marker sunLocationMarker(LatLng newPoint) {
     return Marker(
       point: newPoint,
-      width: 100,
-      height: 100,
-      child: ShowSunMarkerData(buttonLocation: newPoint),
+      width: 80,
+      height: 80,
+      child: SunMarkerButton(buttonLocation: newPoint),
     );
   }
 

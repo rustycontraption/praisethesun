@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
-class ShowSunMarkerData extends StatelessWidget {
-  const ShowSunMarkerData({super.key, required this.buttonLocation});
+class SunMarkerButton extends StatelessWidget {
+  const SunMarkerButton({super.key, required this.buttonLocation});
   final LatLng buttonLocation;
   static const double _buttonSize = 80.0;
   static const double _iconSize = 40.0;

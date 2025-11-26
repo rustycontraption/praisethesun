@@ -54,7 +54,7 @@ class SunLocationModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetSearch() {
+  void stopSearch() {
     _isSearching = false;
     _currentSearchRadius = 0;
     _sunLocations.clear();
@@ -72,9 +72,11 @@ class SunLocationModel extends ChangeNotifier {
     List<LatLng> sunCoords = [];
 
     if (radiusKilometers >= _maxSearchRadius) {
-      resetSearch();
-      _infoMessage =
-          'No sun locations found within a $_maxSearchRadius km radius.';
+      stopSearch();
+      setSystemMessage(
+        'No sun locations found within a $_maxSearchRadius km radius.',
+        MessageType.info,
+      );
       _logger.info(_infoMessage);
       return;
     }
@@ -86,19 +88,25 @@ class SunLocationModel extends ChangeNotifier {
         radiusKilometers: radiusKilometers,
       );
     } on DioException catch (error) {
-      resetSearch();
+      stopSearch();
       switch (error.type) {
         case DioExceptionType.cancel:
           setSystemMessage('Search cancelled by user.', MessageType.info);
           _logger.info('Search cancelled by user.');
         case DioExceptionType.connectionTimeout:
-          setSystemMessage('Search timed out. Try again!', MessageType.error);
+          setSystemMessage(
+            "Oops, I wasn't able to reach the internet.",
+            MessageType.error,
+          );
           _logger.severe('Connection timed out during search.');
         case DioExceptionType.receiveTimeout:
-          setSystemMessage('Search timed out. Try again!', MessageType.error);
+          setSystemMessage(
+            "Oops, I wasn't able to reach the internet.",
+            MessageType.error,
+          );
           _logger.severe('Receive timed out during search.');
         case DioExceptionType.sendTimeout:
-          setSystemMessage('Search timed out. Try again!', MessageType.error);
+          setSystemMessage("Search timed out. Try again!", MessageType.error);
           _logger.severe('Send timed out during search.');
         case DioExceptionType.badResponse:
           setSystemMessage(
@@ -113,7 +121,7 @@ class SunLocationModel extends ChangeNotifier {
       }
       return;
     } catch (error) {
-      resetSearch();
+      stopSearch();
       setSystemMessage('Search failed with error: $error', MessageType.error);
       _logger.severe('Search failed with unhandled error.  Contact the dev!');
       return;

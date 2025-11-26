@@ -12,8 +12,9 @@ class SunApiClient {
           dioInstance ??
           Dio(
             BaseOptions(
-              connectTimeout: Duration(seconds: 5),
-              receiveTimeout: Duration(seconds: 5),
+              connectTimeout: Duration(seconds: 2),
+              sendTimeout: Duration(seconds: 2),
+              receiveTimeout: Duration(seconds: 30),
             ),
           );
 
