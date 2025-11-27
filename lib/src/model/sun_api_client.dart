@@ -36,7 +36,7 @@ class SunApiClient {
     response = await dio.getUri(uri, cancelToken: cancelToken);
 
     if (response.statusCode == 200) {
-      return (response.data['data']['sun_location'] as List).map((item) {
+      return (response.data as List).map((item) {
         return LatLng(item['lat'], item['lng']);
       }).toList();
     } else {
