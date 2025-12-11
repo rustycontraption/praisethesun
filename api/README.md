@@ -1,13 +1,14 @@
-# Praise the Sun API - AWS Lambda Deployment
+# Praise the Sun API - AWS Deployment
 
 This project contains a sun location finder API that has been adapted for AWS Lambda deployment using OpenTofu (Terraform).
 
 ## Architecture
 
 - **AWS Lambda**: Runs the sun location API with a custom Lambda handler
-- **Lambda Layer**: Contains Python dependencies (pydantic, requests) - separate from source code
-- **API Gateway**: Provides HTTP GET endpoint at `/search` and routes requests to Lambda
+- **API Gateway**: Provides HTTP GET endpoint at `/search` with API key authentication and throttling
+- **Route53**: Custom domain configuration with ACM certificate for HTTPS
 - **CloudWatch Logs**: Stores Lambda execution logs
+- **S3 Backend**: Terraform state stored in S3 for remote state management
 
 ## Prerequisites
 
@@ -24,7 +25,10 @@ This project contains a sun location finder API that has been adapted for AWS La
 │   ├── calculate_sun_location.py    # Sun location calculation logic
 │   └── lambda_handler.py            # Custom Lambda handler for API Gateway
 ├── requirements.txt                 # Python dependencies
-├── main.tf                          # Main OpenTofu configuration
+├── main.tf                          # Main Terraform configuration with S3 backend
+├── lambda.tf                        # Lambda function and layer resources
+├── apigateway.tf                    # API Gateway configuration with API key auth
+├── route53.tf                       # Route53 and custom domain setup
 ├── variables.tf                     # Input variables
 ├── outputs.tf                       # Output values
 ├── .gitignore                       # Git ignore file
@@ -55,20 +59,21 @@ When prompted, type `yes` to confirm the deployment.
 
 **Note**: Dependencies are automatically installed into a Lambda Layer during deployment. The `null_resource` in `lambda.tf` runs `pip install` and packages dependencies separately from your source code.
 
-### 4. Get API Endpoint
-
+## API Endpoint
 After successful deployment, OpenTofu will output the API Gateway URL:
 
 ```bash
 tofu output api_gateway_url
 ```
 
-## API Endpoint
-
 ### Get Sun Locations
 ```
 GET /search?start_point_lat={lat}&start_point_lng={lng}&radiusKilometers={radius}
 ```
+
+## Usage
+Headers:
+-`x-api-key` 
 
 Parameters:
 - `start_point_lat`: Latitude (-90 to 90)
@@ -81,46 +86,52 @@ Returns:
 
 Example:
 ```bash
-curl "https://your-api-id.execute-api.us-east-1.amazonaws.com/dev/search?start_point_lat=40.7128&start_point_lng=-74.0060&radiusKilometers=50"
+curl -H "x-api-key: YOUR_API_KEY" "https://api.yourdomain.com/search?start_point_lat=40.7128&start_point_lng=-74.0060&radiusKilometers=50"
 ```
 
 ## Required Configuration Variables
 
-### Environment Vars
-`weather_api_base_url`: Weather API base URL.  Required by the script that retrieves weather data.
+You can configure the TF deployment by setting environment variables (recommended) or passing variables via command line:
 
-### OpenTofu
-You can configure the deployment by modifying `variables.tf`, passing variables, or setting environment variables (recommended):
-
+**Environment variables:**
 ```bash
-tofu apply -var="aws_region=us-west-2" -var="environment=prod"
+export TF_VAR_aws_region="us-east-1"
+export TF_VAR_project_name="praisethesun"
 ```
 
+**Command line:**
 ```bash
-export TF_VAR_aws_region=us-west-2
+tofy apply -var="aws_region=us-east-1" -var="project_name=praisethesun"
 ```
 
-Available variables:
-- `aws_region`: AWS region 
-- `project_name`: Project name prefix
-- `environment`: Environment name (default: dev)
-- `hosted_zone`: AWS hosted zone for API endpoint
-- `tfstate_bucket`: AWS S3 bucket to store tfstate in
-- `prod_key_id`: AWS API Gateway API key ID for prod
-- `dev_key_id`: AWS API Gateway API key ID for dev
+**Required TF variables:**
+- `aws_region`: AWS region for deployment
+- `project_name`: Project name prefix for resource naming
+- `hosted_zone`: Route53 hosted zone for custom domain (e.g., "example.com")
+- `tfstate_bucket`: S3 bucket name for storing Terraform state
+- `dev_key_id`: API Gateway API key ID for development environment (sensitive)
+- `prod_key_id`: API Gateway API key ID for production environment (sensitive)
+
+**Optional TF variables:**
+- `environment`: Environment name (default: "dev")
+
+### Lambda Environment Variables
+
+The Lambda function requires environment variables to be set in `lambda.tf`:
+- `weather_api_base_url`: Open-Meteo API base URL for retrieving weather data
 
 ## Monitoring
 
-View Lambda logs in CloudWatch:
+View Lambda logs in CloudWatch console, or via aws-cli:
 
 ```bash
-aws logs tail /aws/lambda/${lambda_function_name} --follow
+aws logs tail /aws/lambda/$(tofu output -raw lambda_function_name) --follow
 ```
 
-## Making Changes
+## Making Changes to the API
 
-### Update Source Code
-Just modify files in `lambda_package/` and run `tofu apply`. The layer won't be rebuilt.
+### Update API Source Code
+Just modify files in `lambda_package/` and run `tofu apply`.
 
 ### Update Dependencies
 1. Modify `requirements.txt`
@@ -135,22 +146,5 @@ To remove all AWS resources:
 tofu destroy
 ```
 
-## Local Development
+**Note**: This will not delete the S3 bucket containing the Terraform state file.
 
-To test the Lambda handler locally, you can create a test script:
-
-```python
-# test_lambda.py
-from lambda_handler import handler
-
-event = {
-    'queryStringParameters': {
-        'start_point_lat': '40.7128',
-        'start_point_lng': '-74.0060',
-        'radiusKilometers': '50'
-    }
-}
-
-result = handler(event, None)
-print(result)
-```
