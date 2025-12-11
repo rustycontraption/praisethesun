@@ -106,6 +106,8 @@ Available variables:
 - `environment`: Environment name (default: dev)
 - `hosted_zone`: AWS hosted zone for API endpoint
 - `tfstate_bucket`: AWS S3 bucket to store tfstate in
+- `prod_key_id`: AWS API Gateway API key ID for prod
+- `dev_key_id`: AWS API Gateway API key ID for dev
 
 ## Monitoring
 

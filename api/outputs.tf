@@ -5,7 +5,7 @@ output "api_gateway_url" {
 
 output "custom_domain_url" {
   description = "Custom domain URL for the API"
-  value       = "https://${aws_api_gateway_domain_name.api.domain_name}"
+  value       = "https://${aws_route53_record.api.name}"
 }
 
 output "lambda_function_name" {

@@ -1,9 +1,7 @@
-
-
 # API Gateway REST API
 resource "aws_api_gateway_rest_api" "api" {
   name        = "${var.project_name}-api"
-  description = "API Gateway for Praise the Sun API"
+  description = "API Gateway for ${var.project_name}"
 
   endpoint_configuration {
     types = ["REGIONAL"]
@@ -24,10 +22,11 @@ resource "aws_api_gateway_resource" "search" {
 
 # API Gateway method for /search
 resource "aws_api_gateway_method" "search_get" {
-  rest_api_id   = aws_api_gateway_rest_api.api.id
-  resource_id   = aws_api_gateway_resource.search.id
-  http_method   = "GET"
-  authorization = "NONE"
+  rest_api_id      = aws_api_gateway_rest_api.api.id
+  resource_id      = aws_api_gateway_resource.search.id
+  http_method      = "GET"
+  authorization    = "NONE"
+  api_key_required = true
 }
 
 # API Gateway method settings for /search
@@ -132,7 +131,6 @@ resource "aws_api_gateway_stage" "api" {
     Name        = "${var.project_name}-${var.environment}-stage"
     Environment = var.environment
   }
-  
 }
 
 # API Gateway usage plan
@@ -164,13 +162,37 @@ resource "aws_api_gateway_usage_plan" "api_usage_plan" {
   }
 }
 
-ephemeral "aws_api_gateway_api_key" "project_key" {
+data "aws_api_gateway_api_key" "project_key" {
   id = var.environment == "prod" ? var.prod_key_id : var.dev_key_id
 }
 
 # Associate API keys with usage plan
 resource "aws_api_gateway_usage_plan_key" "api_keys" {
-  key_id        = ephemeral.aws_api_key.project_key.id
+  key_id        = data.aws_api_gateway_api_key.project_key.id
   key_type      = "API_KEY"
   usage_plan_id = aws_api_gateway_usage_plan.api_usage_plan.id
 }
+
+# API Gateway custom domain
+resource "aws_api_gateway_domain_name" "api" {
+  domain_name              = "${var.project_name}.${var.hosted_zone}"
+  regional_certificate_arn = data.aws_acm_certificate.existing.arn
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+
+  tags = {
+    Name        = "${var.project_name}-api-domain"
+    Environment = var.environment
+  }
+}
+
+# Base path mapping to connect domain to API Gateway stage
+resource "aws_api_gateway_base_path_mapping" "api" {
+  api_id      = aws_api_gateway_rest_api.api.id
+  stage_name  = aws_api_gateway_stage.api.stage_name
+  domain_name = aws_api_gateway_domain_name.api.domain_name
+}
+
+
