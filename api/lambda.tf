@@ -45,7 +45,6 @@ resource "aws_iam_role" "lambda_role" {
 
   tags = {
     Name        = "${var.project_name}-lambda-role"
-    Environment = var.environment
   }
 }
 
@@ -78,15 +77,8 @@ resource "aws_lambda_function" "api_lambda" {
   
   layers = [aws_lambda_layer_version.dependencies.arn]
 
-  environment {
-    variables = {
-      ENVIRONMENT = var.environment
-    }
-  }
-
   tags = {
     Name        = "${var.project_name}-function"
-    Environment = var.environment
   }
 
   depends_on = [

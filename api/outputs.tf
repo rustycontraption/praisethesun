@@ -1,6 +1,8 @@
-output "api_gateway_url" {
-  description = "Base URL for API Gateway stage"
-  value       = aws_api_gateway_stage.api.invoke_url
+output "api_gateway_urls" {
+  description = "Base URLs for API Gateway stages"
+  value       = {
+    for key, stage in aws_api_gateway_stage.api : key => stage.invoke_url
+  }
 }
 
 output "custom_domain_url" {

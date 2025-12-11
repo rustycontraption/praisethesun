@@ -8,12 +8,6 @@ variable "project_name" {
   type        = string
 }
 
-variable "environment" {
-  description = "Environment name (dev, staging, prod)"
-  type        = string
-  default     = "dev"
-}
-
 variable "hosted_zone" {
   description = "Hosted zone for API Gateway custom domain"
   type        = string
@@ -35,4 +29,33 @@ variable "dev_key_id" {
   type        = string
   sensitive   = true
 }
+
+variable "environment" {
+  description = "Map of environments and their configurations"
+  type = map(object({
+    throttle_rate   = number
+    throttle_burst  = number
+    quota_limit     = number
+    tags            = map(string)
+  }))
+  default = {
+    dev = {
+      throttle_rate  = 10
+      throttle_burst = 20
+      quota_limit    = 1000
+      tags = {
+        Environment = "dev"
+      }
+    }
+    prod = {
+      throttle_rate  = 50
+      throttle_burst = 100
+      quota_limit    = 10000
+      tags = {
+        Environment = "prod"
+      }
+    }
+  }
+}
+
 

@@ -9,7 +9,6 @@ resource "aws_api_gateway_rest_api" "api" {
 
   tags = {
     Name        = "${var.project_name}-api"
-    Environment = var.environment
   }
 }
 
@@ -31,8 +30,9 @@ resource "aws_api_gateway_method" "search_get" {
 
 # API Gateway method settings for /search
 resource "aws_api_gateway_method_settings" "search_throttle" {
+  for_each    = local.environment
   rest_api_id = aws_api_gateway_rest_api.api.id
-  stage_name  = aws_api_gateway_stage.api.stage_name
+  stage_name  = aws_api_gateway_stage.api[each.key].stage_name
   method_path = "${aws_api_gateway_resource.search.path_part}/GET"
 
   settings {
@@ -94,7 +94,6 @@ resource "aws_iam_role" "api_gateway_cloudwatch" {
 
   tags = {
     Name        = "${var.project_name}-api-gateway-cloudwatch-role"
-    Environment = var.environment
   }
 }
 
@@ -122,14 +121,15 @@ resource "aws_lambda_permission" "api_gateway" {
 resource "aws_api_gateway_stage" "api" {
   depends_on    = [ 
     aws_iam_role_policy_attachment.api_gateway_cloudwatch 
-    ]
+  ]
+  for_each      = local.environment
   deployment_id = aws_api_gateway_deployment.api.id
   rest_api_id   = aws_api_gateway_rest_api.api.id
-  stage_name    = var.environment
+  stage_name    = each.key
 
   tags = {
-    Name        = "${var.project_name}-${var.environment}-stage"
-    Environment = var.environment
+    Name        = "${var.project_name}-${each.key}-stage"
+    Environment = each.key
   }
 }
 
@@ -138,39 +138,37 @@ resource "aws_api_gateway_usage_plan" "api_usage_plan" {
   depends_on = [
     aws_api_gateway_stage.api
   ]
-  name        = "${var.project_name}-usage-plan"
-  description = "Usage plan for ${var.project_name} API"
+  for_each    = local.environment
+  name        = "${var.project_name}-${each.key}-usage-plan"
+  description = "Usage plan for ${var.project_name}-${each.key} API"
 
   api_stages {
     api_id = aws_api_gateway_rest_api.api.id
-    stage  = aws_api_gateway_stage.api.stage_name
+    stage  = aws_api_gateway_stage.api[each.key].stage_name
   }
 
   throttle_settings {
-    rate_limit  = 50
-    burst_limit = 100
+    rate_limit  = each.value.throttle_rate
+    burst_limit = each.value.throttle_burst
   }
 
   quota_settings {
-    limit  = var.environment == "prod" ? 10000 : 1000
+    limit  = each.value.quota_limit
     period = "DAY"
   }
 
   tags = {
-    Name        = "${var.project_name}-usage-plan"
-    Environment = var.environment
+    Name        = "${var.project_name}-${each.key}-usage-plan"
+    Environment = each.key
   }
-}
-
-data "aws_api_gateway_api_key" "project_key" {
-  id = var.environment == "prod" ? var.prod_key_id : var.dev_key_id
 }
 
 # Associate API keys with usage plan
 resource "aws_api_gateway_usage_plan_key" "api_keys" {
-  key_id        = data.aws_api_gateway_api_key.project_key.id
+  for_each      = local.environment
+  key_id        = each.value.api_key_id
   key_type      = "API_KEY"
-  usage_plan_id = aws_api_gateway_usage_plan.api_usage_plan.id
+  usage_plan_id = aws_api_gateway_usage_plan.api_usage_plan[each.key].id
 }
 
 # API Gateway custom domain
@@ -184,15 +182,16 @@ resource "aws_api_gateway_domain_name" "api" {
 
   tags = {
     Name        = "${var.project_name}-api-domain"
-    Environment = var.environment
   }
 }
 
 # Base path mapping to connect domain to API Gateway stage
 resource "aws_api_gateway_base_path_mapping" "api" {
+  for_each    = local.environment
   api_id      = aws_api_gateway_rest_api.api.id
-  stage_name  = aws_api_gateway_stage.api.stage_name
+  stage_name  = aws_api_gateway_stage.api[each.key].stage_name
   domain_name = aws_api_gateway_domain_name.api.domain_name
+  base_path   = each.key == "prod" ? "" : each.key
 }
 
 
