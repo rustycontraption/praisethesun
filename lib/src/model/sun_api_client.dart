@@ -5,7 +5,14 @@ import 'package:praisethesun/src/services/sun_logging.dart';
 class SunApiClient {
   final Logger _logger = SunLogging.getLogger('SunApiClient');
   final Dio dio;
-  final String sunAPIUrl = 'http://10.0.2.2:8000/sun/';
+  final String sunAPIUrl = const String.fromEnvironment(
+    'SUN_API_URL',
+    defaultValue: 'http://10.0.2.2:8000/sun/',
+  );
+  final String apiKey = const String.fromEnvironment(
+    'SUN_API_KEY',
+    defaultValue: '',
+  );
 
   SunApiClient({Dio? dioInstance})
     : dio =
@@ -33,7 +40,11 @@ class SunApiClient {
       },
     );
 
-    response = await dio.getUri(uri, cancelToken: cancelToken);
+    response = await dio.getUri(
+      uri,
+      cancelToken: cancelToken,
+      options: Options(headers: {'x-api-key': apiKey}),
+    );
 
     if (response.statusCode == 200) {
       return (response.data as List).map((item) {
