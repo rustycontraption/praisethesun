@@ -31,8 +31,7 @@ This project contains a sun location finder API that has been adapted for AWS La
 ├── route53.tf                       # Route53 and custom domain setup
 ├── variables.tf                     # Input variables
 ├── outputs.tf                       # Output values
-├── .gitignore                       # Git ignore file
-└── README.md                        # This file
+.
 ```
 
 ## Deployment Steps
