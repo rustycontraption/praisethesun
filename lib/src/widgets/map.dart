@@ -108,7 +108,12 @@ class _SunMapState extends State<SunMap> with TickerProviderStateMixin {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    '© OpenStreetMap contributors  ',
+                    '  Weather data by Open-Meteo.com  ',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text('|', style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    '  © OpenStreetMap contributors  ',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
