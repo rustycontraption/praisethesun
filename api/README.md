@@ -81,8 +81,7 @@ Parameters:
 - `radiusKilometers`: Search radius in kilometers (0 to 1000)
 
 Returns:
-- Array of coordinates with clear weather (weather_code = 0)
-- Each coordinate has `lat` and `lng` properties
+- Array of latitude/longitude coordinates with clear weather (Open-Meteo weather_code = 0)
 
 Example:
 ```bash
