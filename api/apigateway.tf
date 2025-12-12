@@ -12,6 +12,14 @@ resource "aws_api_gateway_rest_api" "api" {
   }
 }
 
+# API Gateway request validator for /search endpoint
+resource "aws_api_gateway_request_validator" "search_validator" {
+  name                        = "GET/search"
+  rest_api_id                 = aws_api_gateway_rest_api.api.id
+  validate_request_body       = true
+  validate_request_parameters = true
+}
+
 # API Gateway resource for /search
 resource "aws_api_gateway_resource" "search" {
   rest_api_id = aws_api_gateway_rest_api.api.id
@@ -26,6 +34,13 @@ resource "aws_api_gateway_method" "search_get" {
   http_method      = "GET"
   authorization    = "NONE"
   api_key_required = true
+  request_validator_id = aws_api_gateway_request_validator.search_validator.id
+
+  request_parameters = {
+    "method.request.querystring.start_point_lat" = true
+    "method.request.querystring.start_point_lng" = true
+    "method.request.querystring.radiusKilometers" = true
+  }
 }
 
 # API Gateway method settings for /search
@@ -45,6 +60,8 @@ resource "aws_api_gateway_method_settings" "search_throttle" {
 
 # API Gateway integration for /search
 resource "aws_api_gateway_integration" "search_lambda" {
+  depends_on = [aws_api_gateway_integration.search_lambda]
+
   rest_api_id = aws_api_gateway_rest_api.api.id
   resource_id = aws_api_gateway_method.search_get.resource_id
   http_method = aws_api_gateway_method.search_get.http_method

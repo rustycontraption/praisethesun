@@ -1,5 +1,5 @@
 """
-AWS Lambda handler without Mangum - Direct API Gateway integration
+AWS Lambda handler for the /search endpoint in API Gateway
 """
 import json
 from calculate_sun_location import find_sun

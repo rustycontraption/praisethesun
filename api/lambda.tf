@@ -66,6 +66,10 @@ resource "aws_lambda_layer_version" "dependencies" {
 
 # Lambda function
 resource "aws_lambda_function" "api_lambda" {
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_basic
+  ]
+
   filename         = data.archive_file.lambda_zip.output_path
   function_name    = "${var.project_name}-function"
   role            = aws_iam_role.lambda_role.arn
@@ -77,11 +81,15 @@ resource "aws_lambda_function" "api_lambda" {
   
   layers = [aws_lambda_layer_version.dependencies.arn]
 
+  environment {
+    variables = {
+      WEATHER_API_BASE_URL = var.weather_api_base_url
+    }
+  }
+
   tags = {
     Name        = "${var.project_name}-function"
   }
 
-  depends_on = [
-    aws_iam_role_policy_attachment.lambda_basic
-  ]
+  
 }

@@ -18,6 +18,11 @@ variable "tfstate_bucket" {
   type        = string
 }
 
+variable "weather_api_base_url" {
+  description = "The Open-Meteo API base URL"
+  type        = string
+}
+
 variable "prod_key_id" {
   description = "API gateway key for prod"
   type        = string

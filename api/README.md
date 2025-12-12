@@ -29,6 +29,7 @@ This project contains a sun location finder API that has been adapted for AWS La
 ├── lambda.tf                        # Lambda function and layer resources
 ├── apigateway.tf                    # API Gateway configuration with API key auth
 ├── route53.tf                       # Route53 and custom domain setup
+├── locals.tf                        # Local var adding API key ID env vars to environment variable map
 ├── variables.tf                     # Input variables
 ├── outputs.tf                       # Output values
 .
@@ -110,14 +111,7 @@ tofy apply -var="aws_region=us-east-1" -var="project_name=praisethesun"
 - `tfstate_bucket`: S3 bucket name for storing Terraform state
 - `dev_key_id`: API Gateway API key ID for development environment (sensitive)
 - `prod_key_id`: API Gateway API key ID for production environment (sensitive)
-
-**Optional TF variables:**
-- `environment`: Environment name (default: "dev")
-
-### Lambda Environment Variables
-
-The Lambda function requires environment variables to be set in `lambda.tf`:
-- `weather_api_base_url`: Open-Meteo API base URL for retrieving weather data
+- `weather_api_base_url`: The Open-Meteo API base URL
 
 ## Monitoring
 
