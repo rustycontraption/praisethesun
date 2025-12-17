@@ -1,37 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:praisethesun/src/model/model.dart';
+import 'package:provider/provider.dart';
+import 'snackbar_message.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SunMarkerButton extends StatelessWidget {
   const SunMarkerButton({super.key, required this.buttonLocation});
   final LatLng buttonLocation;
-  static const double _buttonSize = 80.0;
-  static const double _iconSize = 40.0;
-  static const double _iconOffset = 12.0;
+  static const double _buttonSize = 100.0;
+  static const double _iconSize = 35.0;
 
-  void _displayMarkerData(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Sun Location'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Latitude: ${buttonLocation.latitude.toString()}'),
-              const SizedBox(height: 8),
-              Text('Longitude: ${buttonLocation.longitude.toString()}'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
+  void _launchMap(
+    BuildContext context,
+    double destinationLatitude,
+    double destinationLongitude,
+  ) async {
+    final sunModel = context.read<SunLocationModel>();
+    double originLatitude = sunModel.startPoint.latitude;
+    double originLongitude = sunModel.startPoint.longitude;
+
+    try {
+      String urlString = 'https://www.google.com/maps/dir/?api=1';
+
+      urlString += '&origin=$originLatitude,$originLongitude';
+      urlString += '&destination=$destinationLatitude,$destinationLongitude';
+
+      final url = Uri.parse(urlString);
+
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        throw Exception('Could not launch maps');
+      }
+    } catch (error) {
+      if (context.mounted) {
+        showErrorSnackBar(context, 'Could not launch map application: $error');
+      }
+    }
   }
 
   @override
@@ -39,7 +45,11 @@ class SunMarkerButton extends StatelessWidget {
     return IconButton(
       iconSize: _iconSize,
       padding: EdgeInsets.zero,
-      onPressed: () => _displayMarkerData(context),
+      onPressed: () => _launchMap(
+        context,
+        buttonLocation.latitude,
+        buttonLocation.longitude,
+      ),
       icon: SizedBox(
         width: _buttonSize,
         height: _buttonSize,
@@ -47,22 +57,23 @@ class SunMarkerButton extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             const Icon(
-              Icons.location_on,
+              Icons.wb_sunny_rounded,
               color: Colors.orange,
               size: _buttonSize,
+              shadows: [Shadow(blurRadius: 5.0, color: Colors.white)],
             ),
             const Positioned(
-              top: _iconOffset,
-              left: 0,
-              right: 0,
-              child: Icon(Icons.wb_sunny, color: Colors.white, size: _iconSize),
+              top: 30,
+              left: (_buttonSize) / 2 - (_iconSize / 2),
+              child: Icon(
+                Icons.open_in_new,
+                color: Colors.white,
+                size: _iconSize,
+              ),
             ),
           ],
         ),
       ),
     );
-    // child: Icon(Icons.wb_sunny, color: Colors.orange, size: 48),
-    // ),
-    // style: IconButton.styleFrom(foregroundColor: Colors.orange),
   }
 }
