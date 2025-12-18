@@ -5,14 +5,8 @@ import 'package:praisethesun/src/services/sun_logging.dart';
 class SunApiClient {
   final Logger _logger = SunLogging.getLogger('SunApiClient');
   final Dio dio;
-  final String sunAPIUrl = const String.fromEnvironment(
-    'SUN_API_URL',
-    defaultValue: 'http://10.0.2.2:8000/sun/',
-  );
-  final String apiKey = const String.fromEnvironment(
-    'SUN_API_KEY',
-    defaultValue: '',
-  );
+  final String sunAPIUrl = const String.fromEnvironment('SUN_API_URL');
+  final String apiKey = const String.fromEnvironment('SUN_API_KEY');
 
   SunApiClient({Dio? dioInstance})
     : dio =
