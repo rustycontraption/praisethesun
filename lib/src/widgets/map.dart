@@ -31,6 +31,8 @@ class SunMap extends StatefulWidget {
 class _SunMapState extends State<SunMap> with TickerProviderStateMixin {
   late final AnimatedMapController _animatedMapController;
   late final Logger _logger;
+  bool _showMarkers = false;
+  int _tilesLoaded = 0;
 
   @override
   void initState() {
@@ -38,6 +40,18 @@ class _SunMapState extends State<SunMap> with TickerProviderStateMixin {
     _animatedMapController = AnimatedMapController(vsync: this);
     widget.sunModel.addListener(_onSearchRadiusChanged);
     _logger = SunLogging.getLogger('SunMap');
+  }
+
+  void _onTileLoaded() {
+    if (!_showMarkers) {
+      _tilesLoaded++;
+
+      if (_tilesLoaded >= 3) {
+        setState(() {
+          _showMarkers = true;
+        });
+      }
+    }
   }
 
   void _onSearchRadiusChanged() async {
@@ -98,6 +112,15 @@ class _SunMapState extends State<SunMap> with TickerProviderStateMixin {
           TileLayer(
             urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
             userAgentPackageName: 'com.annejulian.praisethesun.app',
+            tileBuilder: (context, tileWidget, tile) {
+              if (!tile.loadError && tile.loadFinishedAt != null) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _onTileLoaded();
+                });
+              }
+
+              return tileWidget;
+            },
           ),
           Align(
             alignment: Alignment.bottomRight,
@@ -120,8 +143,8 @@ class _SunMapState extends State<SunMap> with TickerProviderStateMixin {
               ),
             ),
           ),
-          widget.circleLayer,
-          widget.markerLayer,
+          if (_showMarkers) widget.circleLayer,
+          if (_showMarkers) widget.markerLayer,
         ],
       ),
     );
