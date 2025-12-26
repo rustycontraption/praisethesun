@@ -6,10 +6,9 @@ This Flutter application started as a simple need to see the sun during the long
 The front-end is in a working state.  The back-end API works when run locally for development purposes.
 
 ## Next Steps
-1) Write OpenTofu for standing up the API on AWS API Gateway and Lambda
-2) Final app review before publishing
-3) Publish first version of app to Google Play and Apple Store
-4) Continued development 
+1) Final app review before publishing
+1) Publish first version of app to Google Play and Apple Store
+1) Continued development 
 
 ## Features
 
