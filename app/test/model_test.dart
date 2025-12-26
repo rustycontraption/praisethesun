@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:praisethesun/src/model/model.dart';
+import 'package:praisethesun/praisethesun.dart';
 
 import 'mock_data.dart';
 import 'mock_sun_api.dart';

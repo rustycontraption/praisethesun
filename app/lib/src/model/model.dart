@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:praisethesun/src/model/sun_api_client.dart';
-import 'package:praisethesun/src/services/sun_logging.dart';
+import 'sun_api_client.dart';
+import '../services/sun_logging.dart';
 
 enum MessageType { info, error }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:praisethesun/src/model/model.dart';
 import 'package:provider/provider.dart';
+import '../model/model.dart';
 
 class SearchCircleLayer extends StatelessWidget {
   const SearchCircleLayer({super.key});

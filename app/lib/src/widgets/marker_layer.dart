@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:praisethesun/src/model/model.dart';
-import 'package:praisethesun/src/widgets/find_sun_button.dart';
-import 'package:praisethesun/src/widgets/sun_marker.dart';
 import 'package:provider/provider.dart';
+import '../model/model.dart';
+import 'find_sun_button.dart';
+import 'sun_marker.dart';
 
 class SunMarkerLayer extends StatelessWidget {
   const SunMarkerLayer({super.key});

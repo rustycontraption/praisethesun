@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:praisethesun/src/services/sun_logging.dart';
+import '../services/sun_logging.dart';
 
 class SunApiClient {
   final Logger _logger = SunLogging.getLogger('SunApiClient');

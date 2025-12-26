@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:praisethesun/src/model/model.dart';
-import 'package:praisethesun/src/services/sun_logging.dart';
-import 'package:praisethesun/src/widgets/circle_layer.dart';
-import 'package:praisethesun/src/widgets/marker_layer.dart';
-import 'package:praisethesun/src/widgets/snackbar_message.dart';
+import '../model/model.dart';
+import '../services/sun_logging.dart';
+import 'circle_layer.dart';
+import 'marker_layer.dart';
+import 'snackbar_message.dart';
 
 class SunMap extends StatefulWidget {
   final SunLocationModel sunModel;

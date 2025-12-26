@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:praisethesun/src/model/model.dart';
 import 'package:provider/provider.dart';
-import 'snackbar_message.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../model/model.dart';
+import 'snackbar_message.dart';
 
 class SunMarkerButton extends StatelessWidget {
   const SunMarkerButton({super.key, required this.buttonLocation});
