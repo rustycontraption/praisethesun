@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:praisethesun/src/app.dart';
-import 'package:praisethesun/src/services/system_message_handler.dart';
+import 'package:praisethesun/praisethesun.dart';
 import 'package:provider/provider.dart';
-import 'src/model/model.dart';
-import 'src/services/sun_logging.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

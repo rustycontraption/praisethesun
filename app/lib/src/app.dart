@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:praisethesun/src/model/model.dart';
-import 'package:praisethesun/src/widgets/circle_layer.dart';
-import 'package:praisethesun/src/widgets/map.dart';
-import 'package:praisethesun/src/widgets/marker_layer.dart';
 import 'package:provider/provider.dart';
+import 'model/model.dart';
+import 'widgets/circle_layer.dart';
+import 'widgets/map.dart';
+import 'widgets/marker_layer.dart';
 
 void _handleMap(SunLocationModel sunLocationModel, LatLng point) {
   if (sunLocationModel.isSearching) {

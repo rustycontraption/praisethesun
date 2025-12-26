@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:praisethesun/src/model/model.dart';
 import 'package:provider/provider.dart';
+import '../model/model.dart';
 
 class FindSunButton extends StatefulWidget {
   const FindSunButton({super.key});

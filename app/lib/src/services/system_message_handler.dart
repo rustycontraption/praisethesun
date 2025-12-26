@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:praisethesun/src/model/model.dart';
-import 'package:praisethesun/src/widgets/snackbar_message.dart';
 import 'package:provider/provider.dart';
+import '../model/model.dart';
+import '../widgets/snackbar_message.dart';
 
 class MessageHandler extends StatefulWidget {
   final Widget child;

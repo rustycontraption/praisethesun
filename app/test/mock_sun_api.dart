@@ -1,8 +1,8 @@
 import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:praisethesun/src/model/sun_api_client.dart';
+import 'package:praisethesun/praisethesun.dart';
+
 import 'mock_data.dart';
 
 enum MockFailureType { none, networkError, serverError, timeout }
