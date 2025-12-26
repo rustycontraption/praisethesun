@@ -2,14 +2,6 @@
 
 This Flutter application started as a simple need to see the sun during the long, dark winters in my hometown of Seattle.  I wanted to keep the app as simple as possible; just tap anywhere on the map to start a search for the nearest location with sun.  At first this seemed like a simple proposition but proved interesting and complex, from managing the high number of API calls required to defining what "nearest location" even means.
 
-## Current State
-The front-end is in a working state.  The back-end API works when run locally for development purposes.
-
-## Next Steps
-1) Final app review before publishing
-1) Publish first version of app to Google Play and Apple Store
-1) Continued development 
-
 ## Features
 
 - **Interactive Map**: Built with `flutter_map` for smooth map interactions
