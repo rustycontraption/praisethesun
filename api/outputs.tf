@@ -1,0 +1,26 @@
+output "api_gateway_urls" {
+  description = "Base URLs for API Gateway stages"
+  value       = {
+    for key, stage in aws_api_gateway_stage.api : key => stage.invoke_url
+  }
+}
+
+output "custom_domain_url" {
+  description = "Custom domain URL for the API"
+  value       = "https://${aws_route53_record.api.name}"
+}
+
+output "lambda_function_name" {
+  description = "Name of the Lambda function"
+  value       = aws_lambda_function.api_lambda.function_name
+}
+
+output "lambda_function_arn" {
+  description = "ARN of the Lambda function"
+  value       = aws_lambda_function.api_lambda.arn
+}
+
+output "api_gateway_id" {
+  description = "ID of the API Gateway"
+  value       = aws_api_gateway_rest_api.api.id
+}
