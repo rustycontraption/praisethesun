@@ -42,29 +42,37 @@ class SunMarkerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sunModel = context.read<SunLocationModel>();
+
     return IconButton(
       iconSize: _iconSize,
       padding: EdgeInsets.zero,
-      onPressed: () => _launchMap(
-        context,
-        buttonLocation.latitude,
-        buttonLocation.longitude,
-      ),
+      onPressed: () {
+        _launchMap(context, buttonLocation.latitude, buttonLocation.longitude);
+      },
       icon: SizedBox(
         width: _buttonSize,
         height: _buttonSize,
         child: Stack(
           alignment: Alignment.center,
           children: [
-            const Icon(
-              Icons.wb_sunny_rounded,
-              color: Colors.orange,
-              size: _buttonSize,
-              shadows: [Shadow(blurRadius: 5.0, color: Colors.white)],
-            ),
-            const Positioned(
+            sunModel.isItNight()
+                ? Icon(
+                    Icons.mode_night_rounded,
+                    color: Colors.lightBlue,
+                    size: _buttonSize,
+                  )
+                : Icon(
+                    Icons.wb_sunny_rounded,
+                    color: Colors.orange,
+                    size: _buttonSize,
+                    shadows: [Shadow(blurRadius: 5.0, color: Colors.white)],
+                  ),
+            Positioned(
               top: 30,
-              left: (_buttonSize) / 2 - (_iconSize / 2),
+              left: sunModel.isItNight()
+                  ? (_buttonSize) / 2 - 10
+                  : (_buttonSize) / 2 - (_iconSize / 2),
               child: Icon(
                 Icons.open_in_new,
                 color: Colors.white,
