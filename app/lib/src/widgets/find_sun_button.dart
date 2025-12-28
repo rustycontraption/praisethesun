@@ -17,7 +17,9 @@ class _FindSunButtonState extends State<FindSunButton> {
   @override
   Widget build(BuildContext context) {
     final sunModel = context.read<SunLocationModel>();
-
+    final Color buttonColor = sunModel.isItNight()
+        ? Colors.lightBlue
+        : Colors.orange;
     return IconButton(
       iconSize: _iconSize,
       padding: EdgeInsets.zero,
@@ -27,11 +29,7 @@ class _FindSunButtonState extends State<FindSunButton> {
       icon: Stack(
         alignment: Alignment.center,
         children: [
-          Icon(
-            Icons.location_searching,
-            color: Colors.orange,
-            size: _buttonSize,
-          ),
+          Icon(Icons.location_searching, color: buttonColor, size: _buttonSize),
           Container(
             width: _loadingIndicatorSize,
             height: _loadingIndicatorSize,
@@ -44,17 +42,17 @@ class _FindSunButtonState extends State<FindSunButton> {
               children: [
                 Icon(sunModel.isSearching ? Icons.close : Icons.search),
                 if (sunModel.isSearching)
-                  const SizedBox(
+                  SizedBox(
                     width: _buttonSize,
                     height: _buttonSize,
-                    child: CircularProgressIndicator(color: Colors.orange),
+                    child: CircularProgressIndicator(color: buttonColor),
                   ),
               ],
             ),
           ),
         ],
       ),
-      style: IconButton.styleFrom(foregroundColor: Colors.orange),
+      style: IconButton.styleFrom(foregroundColor: buttonColor),
     );
   }
 }
